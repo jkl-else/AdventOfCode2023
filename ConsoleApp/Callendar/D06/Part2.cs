@@ -5,7 +5,7 @@
         public override async Task<string> GetResultAsync()
         {
             var input = await ReadFileLinesAsync("Test");
-            throw new NotFiniteNumberException();
+            throw new NotImplementedException();
         }
     }
 }
