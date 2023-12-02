@@ -7,67 +7,41 @@
             var input = await ReadFileLinesAsync("Input2");
             var list = input.Select(x => new
             {
-                Id = int.Parse(GetGameId(x, out var left)),
+                Id = ParseGameId(x, out var left),
                 Games = left
                     .Trim()
                     .Split(';')
-                    .Select(y => y.Split(',')
-                            .Select(z => new {
-                                Number = int.Parse(GetFirstNumber(z.Trim(), out var left2)),
-                                Color = left2.Trim()
-                            }).ToDictionary(z => z.Color, z => z.Number)
-                        ).ToList()
-            }).ToList();
+                    .Select(y => y.Split(',').Select(z => ParseGameItem(z.TrimStart()))
+                    .ToDictionary(z => z.Color, z => z.Number))
+                    .ToList()
+            });
             var colors = new List<string>
             {
                 "red",
                 "green",
                 "blue"
             };
-            var result = new List<Dictionary<string, int>>();
-            foreach (var gameId in list)
+            return list
+                .Select(gameId => colors
+                    .ToDictionary(color => color, color =>
+                        gameId.Games.Max(game => game.TryGetValue(color, out var n) ? n : 0)))
+                .Select(r => r.Values.Aggregate(1, (acc, val) => acc * val))
+                .Sum()
+                .ToString();
+
+            int ParseGameId(string value, out string left)
             {
-                var s = new Dictionary<string, int>();
-                foreach (var color in colors)
-                {
-                    int max = 0;
-                    foreach (var game in gameId.Games)
-                    {
-                        if (!game.TryGetValue(color, out var n))
-                            continue;
-                        if (n > max)
-                            max = n;
-                    }
-                    s.Add(color, max);
-                }
-                result.Add(s);
+                var stopIndex = value.IndexOf(':');
+                left = value[(stopIndex + 1)..];
+                return int.Parse(value["Game ".Length..stopIndex]);
             }
 
-            int res = 0;
-            foreach (var r in result)
+            (int Number, string Color) ParseGameItem(string value)
             {
-                int game = 1;
-                foreach (var c in r)
-                {
-                    game *= c.Value;
-                }
-                res += game;
+                var stopIndex = value.IndexOf(' ');
+                var left = value[(stopIndex + 1)..];
+                return (int.Parse(value[..stopIndex]), left);
             }
-            return res.ToString();
-        }
-
-        private static string GetGameId(string value, out string left)
-        {
-            var stopIndex = value.IndexOf(':');
-            left = value[(stopIndex + 1)..];
-            return value["Game ".Length..stopIndex];
-        }
-
-        private static string GetFirstNumber(string value, out string left)
-        {
-            var stopIndex = value.IndexOf(' ');
-            left = value[(stopIndex + 1)..];
-            return value[..stopIndex];
         }
     }
 }
