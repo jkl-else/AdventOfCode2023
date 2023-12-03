@@ -1,8 +1,8 @@
-﻿using System.Text.Json.Serialization;
-using System.Text.Json;
+﻿using System.Text.Json;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.AspNetCore.Builder;
 
 namespace LeaderBoard;
 
@@ -10,21 +10,23 @@ internal static class Program
 {
     static async Task Main(string[] args)
     {
-        var builder = Host.CreateDefaultBuilder()
-            .ConfigureAppConfiguration(config => config.AddCommandLine(args))
-            .ConfigureServices(service =>
-                    service
-                        .AddSingleton<LeaderBoardService>()
-                        .AddHostedService(p => p.GetRequiredService<LeaderBoardService>())
-                        .AddHttpClient() // Add services to the container.
-            );
+        var builder = WebApplication.CreateBuilder();
+        builder.Configuration.AddCommandLine(args);
+        builder.Services
+            .AddSingleton<LeaderBoardService>()
+            .AddHostedService(p => p.GetRequiredService<LeaderBoardService>())
+            .AddHttpClient(); // Add services to the container.
+
+        // Razor pages
+        builder.Services.AddRazorPages();
 
         var app = builder.Build();
+        app.UseRouting();
+        app.MapRazorPages();
 
-        //app.MapGet("leaderboard", (LeaderBoardService service) =>
-        //{
-        //    return service.LeaderBoardModel;
-        //});
+        app.MapControllerRoute(
+            name: "default",
+            pattern: "{controller=Home}/{action=Index}");
 
         await app.RunAsync();
     }
@@ -72,6 +74,7 @@ internal class LeaderBoardService : BackgroundService
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
         Console.WriteLine($"Starting application to call Api: {ApiUrl}");
+        await TryGetData(stoppingToken);
         // create callback timer
         var timer = new PeriodicTimer(TimeSpan.FromMinutes(Configuration.GetValue<int>("RequestInterval")));
         while (await timer.WaitForNextTickAsync(stoppingToken))
@@ -97,6 +100,7 @@ internal class LeaderBoardService : BackgroundService
     /// <returns></returns>
     internal async Task<bool> TryGetData(CancellationToken cancellationToken)
     {
+        throw new Exception("This doesn't work because the Api requires a Cookie session with a login session id and there's no current way to get by Api.");
         // create a client
         var client = HttpClientFactory.CreateClient();
         // get value from api
@@ -109,41 +113,5 @@ internal class LeaderBoardService : BackgroundService
         // Deserialize retrieved data
         LeaderBoardModel = JsonSerializer.Deserialize<LeaderBoardModel>(dataString);
         return true;
-    }
-}
-/// <summary>
-/// Model for api
-/// </summary>
-internal class LeaderBoardModel
-{
-    [JsonPropertyName("owner_id")]
-    public int OwnerId { get; set; }
-    [JsonPropertyName("event")]
-    public int Event { get; set; }
-
-    internal class MemberModel
-    {
-        [JsonPropertyName("global_score")]
-        public int GlobalScore { get; set; }
-        [JsonPropertyName("name")]
-        public string Name { get; set; } = null!;
-        [JsonPropertyName("id")]
-        public int Id { get; set; }
-        [JsonPropertyName("completion_day_level")]
-        public Dictionary<int, Dictionary<int, SolutionModel>> CompletionDayLevel { get; set; } = null!;
-        [JsonPropertyName("local_score")]
-        public int LocalScore { get; set; }
-        [JsonPropertyName("stars")]
-        public long Stars { get; set; }
-        [JsonPropertyName("last_star_ts")]
-        public long LastStarTs { get; set; }
-
-        internal class SolutionModel
-        {
-            [JsonPropertyName("get_star_ts")]
-            public long GetStarTs { get; set; }
-            [JsonPropertyName("star_index")]
-            public long StarIndex { get; set; }
-        }
     }
 }

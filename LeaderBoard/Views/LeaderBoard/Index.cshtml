@@ -1,0 +1,23 @@
+@model LeaderBoardViewModel
+
+<h1>Leader Board</h1>
+
+<p>Owner ID: @Model.OwnerId</p>
+<p>Event: @Model.Event</p>
+
+@foreach (var member in Model.Members)
+{
+    <div>
+        <h3>Member: @member.Name</h3>
+        <p>Global Score: @member.GlobalScore</p>
+        <p>Local Score: @member.LocalScore</p>
+        <p>Stars: @member.Stars</p>
+
+        <ul>
+            @foreach (var dayLevel in member.CompletionDayLevel)
+            {
+                <li>Day @dayLevel.Day, Level @dayLevel.Level: Stars @dayLevel.StarIndex, Time: @dayLevel.GetStarTs</li>
+            }
+        </ul>
+    </div>
+}
