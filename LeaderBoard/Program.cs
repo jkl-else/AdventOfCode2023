@@ -100,7 +100,7 @@ internal class LeaderBoardService : BackgroundService
     /// <returns></returns>
     internal async Task<bool> TryGetData(CancellationToken cancellationToken)
     {
-        throw new Exception("This doesn't work because the Api requires a Cookie session with a login session id and there's no current way to get by Api.");
+        throw new Exception("This doesn't work because the Api requires a Cookie session with a login session id, and not sure how to do this.");
         // create a client
         var client = HttpClientFactory.CreateClient();
         // get value from api
