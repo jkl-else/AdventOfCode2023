@@ -4,7 +4,7 @@
     {
         public override async Task<string> GetResultAsync()
         {
-            var input = await ReadFileLinesAsync("Input2");
+            var input = await ReadFileLinesAsync("Input2");//Result = 54845 - Result in: 00:00:00.0678899
             var values = new Dictionary<string, char>
             {
                 ["one"] = '1',

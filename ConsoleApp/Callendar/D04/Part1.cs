@@ -6,7 +6,7 @@ namespace ConsoleApp.Callendar.D04
     {
         public override async Task<string> GetResultAsync()
         {
-            var input = await ReadFileLinesAsync("Input1");//24160
+            var input = await ReadFileLinesAsync("Input1");//Result = 24160 - Result in: 00:00:00.0859304
             var cards = input.Select((x, i) => new
             {
                 Card = x.Split(':')[1][1..].Split('|')

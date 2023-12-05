@@ -7,7 +7,7 @@ namespace ConsoleApp.Callendar.D03
     {
         public override async Task<string> GetResultAsync()
         {
-            var input = await ReadFileLinesAsync("Input2");
+            var input = await ReadFileLinesAsync("Input2");//Result = 84495585 - Result in: 00:00:00.0569643
             HashSet<(char Char, Point Coordinate)> gears = input.SelectMany((line, y) =>
                     line.Select((c, x) => (c, new Point(x, y)))
                         .Where(o => o.c == '*'))

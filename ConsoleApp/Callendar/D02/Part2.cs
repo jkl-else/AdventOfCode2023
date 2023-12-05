@@ -4,7 +4,7 @@
     {
         public override async Task<string> GetResultAsync()
         {
-            var input = await ReadFileLinesAsync("Input2");
+            var input = await ReadFileLinesAsync("Input2");//Result = 62811 - Result in: 00:00:00.0169265
             var list = input.Select(x => new
             {
                 Id = ParseGameId(x, out var left),

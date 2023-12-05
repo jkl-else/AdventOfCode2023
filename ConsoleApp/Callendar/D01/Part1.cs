@@ -4,7 +4,7 @@
     {
         public override async Task<string> GetResultAsync()
         {
-            var input = await ReadFileLinesAsync("Input1");
+            var input = await ReadFileLinesAsync("Input1");//Result = 55090 - Result in: 00:00:00.0429417
             return input.Select(x => new
             {
                 First = x.FirstOrDefault(char.IsDigit),
